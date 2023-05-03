@@ -7,7 +7,7 @@ class RoleType:
 def get_updated_ids_query(table_name: str, last_update_time: str, limit: int) -> str:
     query = f"""
     SELECT id, updated_at
-    FROM {table_name}
+    FROM content.{table_name}
     WHERE updated_at > '{last_update_time}'
     ORDER BY updated_at
     """
