@@ -16,7 +16,7 @@ def get_updated_genres(last_update_time):
 def get_updated_persons(last_update_time):
     return f"""
     SELECT p.id, p.full_name, p.updated_at
-    FROM ccontent.person p
+    FROM content.person p
     WHERE p.updated_at > '{last_update_time}'
         ORDER BY updated_at
     """
