@@ -1,18 +1,19 @@
 import logging
 from functools import lru_cache
+from uuid import UUID
 
 import orjson
 from elasticsearch import AsyncElasticsearch
 from fastapi import Depends
 from redis.asyncio import Redis
 
-from constants import FilmSort, Index
+from constants import FilmSort, Index, LogicType
 from db.elastic import get_elastic
 from db.redis import get_redis
 from models.film import Film
 
 from .base import BaseService
-from .elastic_db import ElasticRequest, Query, QueryType
+from .elastic_db import ElasticRequest, QueryFilter, QueryType
 from .redis_cache import RedisCache
 
 logger = logging.getLogger(__name__)
@@ -25,37 +26,49 @@ class FilmService(BaseService):
             page_number: int,
             sort: FilmSort | None = None,
             genre: str | None = None,
+            person_id: UUID | None = None,
             query: str | None = None,
     ) -> list[Film]:
-        key = f'filter:{page_size}-{page_number}-{sort}-{genre}-{query}'
+        model_name = self.request.model.__name__.lower()
+        key = f'filter:{model_name}-{page_size}-{page_number}-{sort}-{genre}-{person_id}-{query}'
         data = await self.cache.get_from_cache(key)
         if data is not None:
             entities = [self.request.model.parse_obj(raw_entity) for raw_entity in orjson.loads(data)]
 
         else:
-            queries = []
+            filters = []
 
             if genre is not None:
-                queries.append(
-                    Query(
+                filters.append(
+                    QueryFilter(
                         type=QueryType.MATCH,
                         query=genre,
                         fields=['genre'],
                     )
                 )
 
+            if person_id is not None:
+                filters.append(
+                    QueryFilter(
+                        type=QueryType.NESTED,
+                        query=str(person_id),
+                        fields=['actors.id', 'writers.id'],
+                        fields_type=LogicType.SHOULD,
+                    )
+                )
+
             if query is not None:
-                queries.append(
-                    Query(
+                filters.append(
+                    QueryFilter(
                         type=QueryType.MULTI_MATCH,
                         query=query,
-                        fields=['title', 'description', 'actors_names', 'director', 'writers_names', 'genre'],
+                        fields=['title', 'description', 'actors_names', 'writers_names', 'director'],
                     )
                 )
 
             entities = await self.request.filter(
                 sort_texts=[sort] if sort is not None else None,
-                queries=queries,
+                filters=filters,
                 size=page_size,
                 page_number=page_number,
             )
