@@ -1,9 +1,11 @@
 from http import HTTPStatus
+from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException
 
 from api.schemas.genre import Genre
+from api.utils import PaginateQueryParams
 from services.genre import GenreService, get_genre_service
 
 router = APIRouter()
@@ -16,15 +18,14 @@ router = APIRouter()
     description="Получение списка всех жанров",
 )
 async def genres(
-        page_size: int = Query(50, ge=1),
-        page_number: int = Query(1, ge=1),
-        genre_service: GenreService = Depends(get_genre_service)
+        paginate: Annotated[PaginateQueryParams, Depends(PaginateQueryParams)],
+        genre_service: Annotated[GenreService, Depends(get_genre_service)],
 ) -> list[Genre]:
     """Список жанров.
     """
     genres = await genre_service.filter(
-        page_size=page_size,
-        page_number=page_number,
+        page_size=paginate.page_size,
+        page_number=paginate.page_number,
     )
     returned_genres = [Genre.parse_obj(genre) for genre in genres]
 
@@ -37,7 +38,10 @@ async def genres(
     summary="Жанр по ID",
     description="Получение жанра по его ID",
 )
-async def genre_details(genre_id: UUID, genre_service: GenreService = Depends(get_genre_service)) -> Genre:
+async def genre_details(
+        genre_id: UUID,
+        genre_service: Annotated[GenreService, Depends(get_genre_service)],
+) -> Genre:
     """Страница жанра.
     """
     genre = await genre_service.get_by_id(genre_id)
