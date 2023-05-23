@@ -18,15 +18,14 @@ class BaseService(AbstractService, ABC):
         data = await self.cache.get_from_cache(key)
 
         if data is not None:
-            entity = self.request.model.parse_raw(data)
+            return self.request.model.parse_raw(data)
 
-        else:
-            entity = await self.request.get_by_id(id_)
-            if not entity:
-                return None
+        entity = await self.request.get_by_id(id_)
+        if not entity:
+            return None
 
-            data = entity.json(by_alias=True)
-            await self.cache.put_to_cache(key, data)
+        data = entity.json(by_alias=True)
+        await self.cache.put_to_cache(key, data)
 
         return entity
 

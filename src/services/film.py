@@ -31,50 +31,50 @@ class FilmService(BaseService):
     ) -> list[Film]:
         model_name = self.request.model.__name__.lower()
         key = f'filter:{model_name}-{page_size}-{page_number}-{sort}-{genre}-{person_id}-{query}'
+
         data = await self.cache.get_from_cache(key)
         if data is not None:
-            entities = [self.request.model.parse_obj(raw_entity) for raw_entity in orjson.loads(data)]
+            return [self.request.model.parse_obj(raw_entity) for raw_entity in orjson.loads(data)]
 
-        else:
-            filters = []
+        filters = []
 
-            if genre is not None:
-                filters.append(
-                    QueryFilter(
-                        type=QueryType.MATCH,
-                        query=genre,
-                        fields=['genre'],
-                    )
+        if genre is not None:
+            filters.append(
+                QueryFilter(
+                    type=QueryType.MATCH,
+                    query=genre,
+                    fields=['genre'],
                 )
-
-            if person_id is not None:
-                filters.append(
-                    QueryFilter(
-                        type=QueryType.NESTED,
-                        query=str(person_id),
-                        fields=['actors.id', 'writers.id'],
-                        fields_type=LogicType.SHOULD,
-                    )
-                )
-
-            if query is not None:
-                filters.append(
-                    QueryFilter(
-                        type=QueryType.MULTI_MATCH,
-                        query=query,
-                        fields=['title', 'description', 'actors_names', 'writers_names', 'director'],
-                    )
-                )
-
-            entities = await self.request.filter(
-                sort_texts=[sort] if sort is not None else None,
-                filters=filters,
-                size=page_size,
-                page_number=page_number,
             )
 
-            data = [entity.dict(by_alias=True) for entity in entities]
-            await self.cache.put_to_cache(key, orjson.dumps(data))
+        if person_id is not None:
+            filters.append(
+                QueryFilter(
+                    type=QueryType.NESTED,
+                    query=str(person_id),
+                    fields=['actors.id', 'writers.id'],
+                    fields_type=LogicType.SHOULD,
+                )
+            )
+
+        if query is not None:
+            filters.append(
+                QueryFilter(
+                    type=QueryType.MULTI_MATCH,
+                    query=query,
+                    fields=['title', 'description', 'actors_names', 'writers_names', 'director'],
+                )
+            )
+
+        entities = await self.request.filter(
+            sort_texts=[sort] if sort is not None else None,
+            filters=filters,
+            size=page_size,
+            page_number=page_number,
+        )
+
+        data = [entity.dict(by_alias=True) for entity in entities]
+        await self.cache.put_to_cache(key, orjson.dumps(data))
 
         return entities
 

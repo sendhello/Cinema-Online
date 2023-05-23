@@ -27,30 +27,30 @@ class PersonService(BaseService):
     ) -> list[Person]:
         model_name = self.request.model.__name__.lower()
         key = f'filter:{model_name}-{page_size}-{page_number}-{query}'
+
         data = await self.cache.get_from_cache(key)
         if data is not None:
-            entities = [self.request.model.parse_obj(raw_entity) for raw_entity in orjson.loads(data)]
+            return [self.request.model.parse_obj(raw_entity) for raw_entity in orjson.loads(data)]
 
-        else:
-            filters = []
+        filters = []
 
-            if query is not None:
-                filters.append(
-                    QueryFilter(
-                        type=QueryType.MULTI_MATCH,
-                        query=query,
-                        fields=['full_name'],
-                    )
+        if query is not None:
+            filters.append(
+                QueryFilter(
+                    type=QueryType.MULTI_MATCH,
+                    query=query,
+                    fields=['full_name'],
                 )
-
-            entities = await self.request.filter(
-                filters=filters,
-                size=page_size,
-                page_number=page_number,
             )
 
-            data = [entity.dict(by_alias=True) for entity in entities]
-            await self.cache.put_to_cache(key, orjson.dumps(data))
+        entities = await self.request.filter(
+            filters=filters,
+            size=page_size,
+            page_number=page_number,
+        )
+
+        data = [entity.dict(by_alias=True) for entity in entities]
+        await self.cache.put_to_cache(key, orjson.dumps(data))
 
         return entities
 
