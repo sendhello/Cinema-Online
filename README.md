@@ -1,6 +1,6 @@
-# Online-кинотеатр
+# Online-cinema
 
-### Список сервисов online-кинотеатра:
+### Services list:
 * [Admin Panel](admin_panel/README.md)
 * [SQLite to Postgres](sqlite_to_postgres/README.md)
 * [ETL](etl/README.md)
@@ -12,28 +12,28 @@
 * [Subscribe Service](subscribe_service/README.md)
 * [Subscribe Controller](subscribe_controller/README.md)
 
-### Поддержка проекта
+### Project support
 
-Группа разработки:
+Engineers:
 
 * Иван Баженов (*[@sendhello](https://github.com/sendhello)*)
 
-### Запуск сервиса
+### Run services
 ```commandline
 docker compose up --build
 ```
 
-### Jaeger-Трассировка 
+### Jaeger-trace
 http://localhost:16686
 
-### Запуск functional-тестов
+### Run functional-tests
 
-##### Сейвис Async-API
+##### Service Async-API
 ```commandline
 docker compose -f tests/functional/docker-compose.yml up --build
 ```
 
-##### Сейвис Auth
+##### Service Auth
 ```commandline
 pytest -vv auth_service
 ```

@@ -1,85 +1,118 @@
 @startuml
-
-
 skinparam componentStyle uml2
+skinparam shadowing false
 
+' --- Акторы ---
+actor User
+actor Manager
 
-Actor Manager
-Actor User
-
-
-rectangle UGC {
+' --- UGC Block ---
+rectangle "UGC" {
     [Views Proxy]
-
-    database "Kafka" {
-    }
-
+    database "Kafka"
     [Views ETL]
-
-    database "Clickhouse" {
-    }
+    database "Clickhouse"
 }
 
-
-rectangle AsyncAPI {
+' --- AsyncAPI Block ---
+rectangle "AsyncAPI" {
     [Async Api]
-    database "ElasticSearch" {
-    }
-    database "Async_cache" {
-    }
+    database "ElasticSearch"
+    database "Async_cache"
 }
 
-
-rectangle Admin {
-    [Admin Panel]
-    database "Admin_pg" {
-    }
+' --- Admin Block ---
+rectangle "Admin" {
+    [Admin Panel] as AdminPanel
+    database "Admin_pg"
     [ETL]
 }
 
-
-rectangle Auth_service {
+' --- Auth Block ---
+rectangle "Auth Service" {
     [Auth]
-    database "Auth_pg" {
-    }
-    database "Auth-cache" {
-    }
+    database "Auth_pg"
+    database "Auth-cache"
 }
 
-
-rectangle BillingService {
+' --- Billing Block ---
+rectangle "Billing Service" {
     [Billing]
-    database "billing_pg" {
-    }
+    database "billing_pg"
 }
 
+' --- Notification Block ---
+rectangle "Notification System" {
+    [Notification Generator]
+    [Notification API]
+    database "notification_pg"
+}
 
-[Admin Panel] <.u. [Manager] : Добавляет \nфильмы
-[Admin Panel] <.d.> [Admin_pg] : Редактирование \nконтента
-[Admin Panel] .d.> [Auth] : Авторизация
+' --- Email Block ---
+rectangle "Email System" {
+    [Email Sender]
+}
 
+' --- RabbitMQ ---
+rectangle "RabbitMQ" {
+    [emails_queue] as q_emails
+    [email_status_queue] as q_status
+}
 
-[Auth] <.d.> [Auth_pg] : Обновление \nusers, roles
-[Auth] <.r.> [Auth-cache] : Запись \naccess_token
-[Auth] <.u. [Client] : Регистрация \nи получение \nтокенов
+' --- Subscribe Block ---
+rectangle "Subscription System" {
+    [Subscribe Service]
+    [Subscribe Controller]
+    database "subscribe_pg"
+}
 
+' --- Клиент ---
+[Client]
 
-[Async Api] .d.> [Auth] : Авторизация
-[ETL] ..> [ElasticSearch] : Запись \nfilms
-[ETL] <.u. [Admin_pg] : Чтение \nfilms
-[Async Api] <.u. [Client] : Получение \nконтента
-[Async Api] <.r. [ElasticSearch] : Чтение \nfilms
-[Async Api] <.d.> [Async_cache] : Cache
+' --- Admin Panel ---
+Manager --> AdminPanel : Добавляет\nфильмы
+AdminPanel --> [Admin_pg] : Редактирует\nконтент
+AdminPanel --> [Auth] : Авторизация
 
+' --- Auth ---
+[Auth] --> [Auth_pg] : Обновляет\nusers, roles
+[Auth] --> [Auth-cache] : Запись\ntokenов
+[Client] --> [Auth] : Регистрация\nи токены
 
-[Client] <.u. [User] : Пользуется \nсервисом
-[Client] <.u. [Manager] : Регистрация
-[Client] .d.> [Views Proxy] : Прогресс \nпросмотра \nфильма \n(каждые \nn секунд)
-[Views Proxy] ..> [Kafka]: Прогресс \nпросмотра \nфильма
-[Kafka] .d.> [Views ETL]
-[Views ETL] ..> [Clickhouse]: складываем \nпачками
+' --- Async API ---
+[Async Api] --> [Auth] : Авторизация
+[ETL] --> [ElasticSearch] : Запись\nfilms
+[ETL] --> [Admin_pg] : Чтение\nfilms
+[Client] --> [Async Api] : Получение\nконтента
+[Async Api] --> [ElasticSearch] : Чтение\nfilms
+[Async Api] --> [Async_cache] : Cache
 
-[Billing] .d.> [Auth] : Авторизация
-[Billing] <.d.> [billing_pg]
+' --- Клиент и просмотр ---
+User --> [Client] : Пользуется\nсервисом
+Manager --> [Client] : Регистрация
+[Client] --> [Views Proxy] : Прогресс\nпросмотра
+[Views Proxy] --> [Kafka] : Пишет\nсообщения
+[Kafka] --> [Views ETL] : Передаёт\nсообщения
+[Views ETL] --> [Clickhouse] : Сохраняет\nпачками
+
+' --- Billing ---
+[Client] --> [Billing] : Оплата/статус
+[Billing] --> [Auth] : Авторизация
+[Billing] --> [billing_pg]
+[Billing] --> [Subscribe Service] : CRUD\nподписок
+
+' --- Notifications & Email ---
+[Notification Generator] --> [Notification API] : Получение\nданных
+[Notification Generator] --> q_emails : Публикация\nemail задач
+[Email Sender] --> q_emails : Получение\nemail задач
+[Email Sender] --> q_status : Публикация\nстатуса
+[Billing] --> [Notification API] : Данные об оплате
+[Auth] --> [Notification API] : Данные об авторизации
+[Notification API] --> q_status : Получение\nстатуса
+[Notification API] --> [notification_pg]
+
+' --- Subscribe System ---
+[Subscribe Controller] --> [Subscribe Service] : Шедулинг\nзапросов
+[Subscribe Service] --> [subscribe_pg]
 
 @enduml

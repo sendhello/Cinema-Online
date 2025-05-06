@@ -1,44 +1,44 @@
-# Сервис Auth
+# Auth Service
 
-Сервис аутентификации и авторизации
+Authentication and Authorization Service
 
-* **Язык приложения:** Python 3.11
-* **Поддерживаемые протоколы взаимодействия:** REST API
-* **Инфраструктурные зависимости:** Postgres, Redis
-* **Зависимости от системных пакетов:** отсутствуют
-* **Зависимости от расширений PostgreSQL:** отсутствуют
-* **Часть окружения:** development
-* **Минимальные системные требования:** 1 CPU, 1Gb RAM
+* **Application Language:** Python 3.11
+* **Supported Communication Protocols:** REST API
+* **Infrastructure Dependencies:** Postgres, Redis
+* **System Package Dependencies:** None
+* **PostgreSQL Extension Dependencies:** None
+* **Environment Role:** development
+* **Minimum System Requirements:** 1 CPU, 1Gb RAM
 
-## Поддержка сервиса
+## Service support
 
-Группа разработки:
+Software engineers:
 
-* Иван Баженов (*[@sendhello](https://github.com/sendhello)*)
+* Ivan Bazhenov (*[@sendhello](https://github.com/sendhello)*)
 
-## Описание обязательных методов для запуска сервиса
+## Description of Required Methods to Run the Service
 
-### Запуск сервиса
+### Service Startup
 ```commandline
-# Из корня проекта
+on the root
 docker compose up --build
 ```
 
-### Документация
+### Documentation
 * http://127.0.0.1/api/auth/openapi (Swagger)
 * http://127.0.0.1/api/auth/openapi.json (openapi)
 
-## Описание дополнительных методов сервиса
+## Description of Additional Service Methods
 
-### Запуск functional-тестов
-Установка зависимостей requirements-dev.txt из корня проекта
+### Running functional-tests
+Installing dependencies from requirements-dev.txt at the project root
 
 ```commandline
 pytest -vv auth_service
 ```
 
-### Запуск линтеров
-Установка зависимостей requirements-dev.txt из корня проекта
+### Running linters
+Installing dependencies from requirements-dev.txt at the project root
 
 ```commandline
 isort auth_service
@@ -46,23 +46,23 @@ flake8 auth_service
 black --skip-string-normalization auth_service
 ```
 
-### Описание ENV переменных
+### Description of ENV Variables
 
-| Имя переменной           | Возможное значение                                  | Описание                                                                                |
-|:-------------------------|-----------------------------------------------------|:----------------------------------------------------------------------------------------|
-| DEBUG                    | False                                               | Режим отладки                                                                           |
-| PROJECT_NAME             | Auth                                                | Название сервиса (отображается в Swagger)                                               |
-| REDIS_HOST               | redis                                               | Имя сервера Redis                                                                       |
-| REDIS_PORT               | 6379                                                | Порт сервера Redis                                                                      |
-| PG_DSN                   | postgresql+asyncpg://app:123qwe@localhost:5433/auth | Путь к БД Postgres                                                                      |
-| SECRET_KEY               | secret                                              | Секретный ключ                                                                          |
-| JAEGER_TRACE             | True                                                | Включение трассировки Jaeger                                                            |
-| JAEGER_AGENT_HOST        | localhost                                           | Хост Jaeger Агента                                                                      |
-| JAEGER_AGENT_PORT        | 6831                                                | Порт Jaeger Агента                                                                      |
-| REQUEST_LIMIT_PER_MINUTE | 20                                                  | Ограничение лимита запросов (в минуту). Если указано 0 - ограничение лимита отключается |
-| GOOGLE_REDIRECT_URI      | http://localhost/api/v1/google/auth_return          | Uri редеректа Google авторизации                                                        |
-| GOOGLE_CLIENT_ID         | 6anqlc8.apps.googleusercontent.com                  | ID клиента Google авторизации                                                           |
-| GOOGLE_CLIENT_SECRET     | AAAAAA-sdsdsd-v-wiO2kwkWVIQ9JmsS62Y                 | Секрет клиента Google авторизации                                                       |
+| Variable Name            | Possible Value                                      | Description                                                             |
+|:-------------------------|-----------------------------------------------------|:------------------------------------------------------------------------|
+| DEBUG                    | False                                               | Debug mode                                                              |
+| PROJECT_NAME             | Auth                                                | Name of the service (displayed in Swagger)                              |
+| REDIS_HOST               | redis                                               | Redis server hostname                                                   |
+| REDIS_PORT               | 6379                                                | Redis server port                                                       |
+| PG_DSN                   | postgresql+asyncpg://app:123qwe@localhost:5433/auth | PostgreSQL database DSN (Data Source Name)                              |
+| SECRET_KEY               | secret                                              | Secret key                                                              |
+| JAEGER_TRACE             | True                                                | Enable Jaeger tracing                                                   |
+| JAEGER_AGENT_HOST        | localhost                                           | Jaeger agent host                                                       |
+| JAEGER_AGENT_PORT        | 6831                                                | Jaeger agent port                                                       |
+| REQUEST_LIMIT_PER_MINUTE | 20                                                  | Request rate limit (per minute). If set to 0, rate limiting is disabled |
+| GOOGLE_REDIRECT_URI      | http://localhost/api/v1/google/auth_return          | Google authentication redirect URI                                      |
+| GOOGLE_CLIENT_ID         | 6anqlc8.apps.googleusercontent.com                  | Google authentication client ID                                         |
+| GOOGLE_CLIENT_SECRET     | AAAAAA-sdsdsd-v-wiO2kwkWVIQ9JmsS62Y                 | Google authentication client secret                                     |
 
-### Создание суперпользователя
-Суперпользователь создается автоматически с логином admin@example.com и паролем admin
+### Creating a Superuser
+A superuser is created automatically with the login admin@example.com and the password admin.
