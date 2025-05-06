@@ -1,50 +1,49 @@
-# Сервис Async API
+# Service Async API
 
-Проект представляет асинхронное Web-API для поиска информации о фильмах
+The project provides an asynchronous Web API for searching movie information
 
-* **Язык приложения:** Python 3.11
-* **Поддерживаемые протоколы взаимодействия:** REST API
-* **Инфраструктурные зависимости:** Elasticsearch, Redis
-* **Зависимости от системных пакетов:** отсутствуют
-* **Зависимости от расширений PostgreSQL:** отсутствуют
-* **Часть окружения:** development
-* **Минимальные системные требования:** 1 CPU, 1Gb RAM
+* **Application Language:** Python 3.11
+* **Supported Communication Protocols:** REST API
+* **Infrastructure Dependencies:** Elasticsearch, Redis
+* **System Package Dependencies:** None
+* **PostgreSQL Extension Dependencies:** None
+* **Environment Role:** development
+* **Minimum System Requirements:** 1 CPU, 1Gb RAM
 
-## Поддержка сервиса
+## Service support
 
-Группа разработки:
+Software engineers:
 
-* Иван Баженов (*[@sendhello](https://github.com/sendhello)*)
-* Александр Сухарев (*[@ksieuk](https://github.com/ksieuk)*)
+* Ivan Bazhenov (*[@sendhello](https://github.com/sendhello)*)
 
-## Описание обязательных методов для запуска сервиса
+## Description of Required Methods to Run the Service
 
-### Запуск сервиса
+### Service Startup
 
 ```commandline
-# Из корня проекта
+# on the root
 docker compose up --build
 ```
 
-### Документация
+### Documentation
 * http://127.0.0.1/api/api/openapi (Swagger)
 * http://127.0.0.1/api/api/openapi.json (openapi)
 
-## Описание дополнительных методов сервиса
+## Description of Additional Service Methods
 
-### Запуск functional-тестов
+### Running functional-tests
 ```commandline
 docker compose -f tests/functional/docker-compose.yml up --build
 ```
 
-### Описание ENV переменных
+### Description of ENV Variables
 
-| Имя переменной    | Возможное значение | Описание                                    |
-|:------------------|--------------------|:--------------------------------------------|
-| PROJECT_NAME      | Cinema             | Название сервиса (отображается в Swagger)   |
-| ES_HOST           | elasticsearch      | Имя сервера ElasticSearch                   |
-| ES_PORT           | 9200               | Порт сервера ElasticSearch                  |
-| REDIS_HOST        | redis              | Имя сервера Redis                           |
-| REDIS_PORT        | 6379               | Порт сервера Redis                          |
-| LOG_LEVEL_LOGGERS | DEBUG              | Уровень логирования                         |
-| LOG_LEVEL_ROOT    | DEBUG              | Уровень логирования                         |
+| Variable Name     | Possible Value  | Description                        |
+|:------------------|-----------------|:-----------------------------------|
+| PROJECT_NAME      | Cinema          | Service name (show in the Swagger) |
+| ES_HOST           | elasticsearch   | ElasticSearch server name          |
+| ES_PORT           | 9200            | ElasticSearch server port          |
+| REDIS_HOST        | redis           | Redis server name                  |
+| REDIS_PORT        | 6379            | Redis server port                  |
+| LOG_LEVEL_LOGGERS | DEBUG           | log level                          |
+| LOG_LEVEL_ROOT    | DEBUG           | root log level                     |

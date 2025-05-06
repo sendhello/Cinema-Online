@@ -1,66 +1,66 @@
 # Subscribe Service
 
-Сервис подписок
+Subscription Service
 
-* **Язык приложения:** Python 3.11
-* **Поддерживаемые протоколы взаимодействия:** REST API
-* **Инфраструктурные зависимости:** Postgres
-* **Зависимости от системных пакетов:** отсутствуют
-* **Зависимости от расширений PostgreSQL:** отсутствуют
-* **Часть окружения:** development
-* **Минимальные системные требования:** 1 CPU, 1Gb RAM
+* **Application Language:** Python 3.11
+* **Supported Communication Protocols:** REST API
+* **Infrastructure Dependencies:** Postgres
+* **System Package Dependencies:** None
+* **PostgreSQL Extension Dependencies:** None
+* **Environment Role:** development
+* **Minimum System Requirements:** 1 CPU, 1Gb RAM
 
-## Поддержка сервиса
+## Service support
 
-Группа разработки:
+Software engineers:
 
-* Иван Баженов (*[@sendhello](https://github.com/sendhello)*)
+* Ivan Bazhenov (*[@sendhello](https://github.com/sendhello)*)
 
-## Описание обязательных методов для запуска сервиса
+## Description of Required Methods to Run the Service
 
-### Запуск сервиса
+### Service Startup
 ```commandline
-# Из корня проекта
+on the root
 docker compose up --build
 ```
 
-### Документация
+### Documentation
 * http://127.0.0.1/api/subscribe/openapi (Swagger)
 * http://127.0.0.1/api/subscribe/openapi.json (openapi)
 
-## Описание дополнительных методов сервиса
+## Description of Additional Service Methods
 
-### Запуск functional-тестов
-Установка зависимостей requirements-dev.txt из корня проекта
-
-```commandline
-pytest -vv subscribe_service
-```
-
-### Запуск линтеров
-Установка зависимостей requirements-dev.txt из корня проекта
+### Running functional-tests
+Installing dependencies from requirements-dev.txt at the project root
 
 ```commandline
-isort subscribe_service
-flake8 subscribe_service
-black --skip-string-normalization subscribe_service
+pytest -vv auth_service
 ```
 
-### Описание ENV переменных
+### Running linters
+Installing dependencies from requirements-dev.txt at the project root
 
-| Имя переменной          | Возможное значение             | Описание                                  |
-|:------------------------|--------------------------------|:------------------------------------------|
-| DEBUG                   | False                          | Режим отладки                             |
-| PROJECT_NAME            | Auth                           | Название сервиса (отображается в Swagger) |
-| ENVIRONMENT             | dev                            | Имя окружения                             |
-| SHOW_TRACEBACK          | true                           | Показывать трейсбек в http-ответе         |
-| SUBSCRIBE_POSTGRES_HOST | subscribe-postgres             | Путь к БД Postgres                        |
-| SUBSCRIBE_POSTGRES_PORT | 5432                           | Порт БД Postgres                          |
-| POSTGRES_USER           | app                            | Имя пользователя БД Postgres              |
-| POSTGRES_PASSWORD       | 123qwe                         | Пароль пользователя БД Postgres           |
-| SUBSCRIBE_POSTGRES_DB   | subscribe                      | Имя БД Postgres                           |
-| AUTH_GATEWAY            | localhost                      | Путь к сервису Auth                       |
-| YOOKASSA_SHOP_ID        | 123456                         | ID магазина в Ю-кассе                     |
-| YOOKASSA_API_KEY        | ***                            | Api-key Ю-кассы                           |
-| YOOKASSA_RETURN_URL     | localhost/path                 | Адрес перенаправления после оплаты        |
-| SENTRY_DSN              | https://*@*ingest.sentry.io/11 | DSN-адрес Sentry                          |
+```commandline
+isort auth_service
+flake8 auth_service
+black --skip-string-normalization auth_service
+```
+
+### Description of ENV Variables
+
+| Variable Name           | Possible Value                 | Description                                |
+|:------------------------|--------------------------------|:-------------------------------------------|
+| DEBUG                   | False                          | Debug mode                                 |
+| PROJECT_NAME            | Auth                           | Name of the service (displayed in Swagger) |
+| ENVIRONMENT             | dev                            | Name of the environment                    |
+| SHOW_TRACEBACK          | true                           | Show traceback in HTTP response            |
+| SUBSCRIBE_POSTGRES_HOST | subscribe-postgres             | Postgres database host                     |
+| SUBSCRIBE_POSTGRES_PORT | 5432                           | Postgres database port                     |
+| POSTGRES_USER           | app                            | Postgres database username                 |
+| POSTGRES_PASSWORD       | 123qwe                         | Postgres user password                     |
+| SUBSCRIBE_POSTGRES_DB   | subscribe                      | Postgres database name                     |
+| AUTH_GATEWAY            | localhost                      | Path to the Auth service                   |
+| YOOKASSA_SHOP_ID        | 123456                         | YooKassa shop ID                           |
+| YOOKASSA_API_KEY        | ***                            | YooKassa API key                           |
+| YOOKASSA_RETURN_URL     | localhost/path                 | Redirect URL after payment                 |
+| SENTRY_DSN              | https://*@*ingest.sentry.io/11 | Sentry DSN address                         |
