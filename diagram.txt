@@ -2,7 +2,7 @@
 skinparam componentStyle uml2
 skinparam shadowing false
 
-' --- Акторы ---
+' --- Actors ---
 actor User
 actor Manager
 
@@ -35,84 +35,70 @@ rectangle "Auth Service" {
     database "Auth-cache"
 }
 
-' --- Billing Block ---
-rectangle "Billing Service" {
-    [Billing]
-    database "billing_pg"
-}
-
 ' --- Notification Block ---
 rectangle "Notification System" {
     [Notification Generator]
     [Notification API]
-    database "notification_pg"
-}
-
-' --- Email Block ---
-rectangle "Email System" {
     [Email Sender]
+    database "notification_pg"
+    database "RabbitMQ"
 }
 
-' --- RabbitMQ ---
-rectangle "RabbitMQ" {
-    [emails_queue] as q_emails
-    [email_status_queue] as q_status
-}
-
-' --- Subscribe Block ---
-rectangle "Subscription System" {
+' --- Billing & Subscription Block ---
+rectangle "Billing & Subscription" {
+    [Billing]
     [Subscribe Service]
     [Subscribe Controller]
+    database "billing_pg"
     database "subscribe_pg"
 }
 
-' --- Клиент ---
+' --- Client ---
 [Client]
 
 ' --- Admin Panel ---
-Manager --> AdminPanel : Добавляет\nфильмы
-AdminPanel --> [Admin_pg] : Редактирует\nконтент
-AdminPanel --> [Auth] : Авторизация
+Manager --> AdminPanel : Adds\nmovies
+AdminPanel --> [Admin_pg] : Edits\ncontent
+AdminPanel --> [Auth] : Authorization
 
 ' --- Auth ---
-[Auth] --> [Auth_pg] : Обновляет\nusers, roles
-[Auth] --> [Auth-cache] : Запись\ntokenов
-[Client] --> [Auth] : Регистрация\nи токены
+[Auth] --> [Auth_pg] : Updates\nusers, roles
+[Auth] --> [Auth-cache] : Stores\ntokens
+[Client] --> [Auth] : Registration\nand tokens
 
 ' --- Async API ---
-[Async Api] --> [Auth] : Авторизация
-[ETL] --> [ElasticSearch] : Запись\nfilms
-[ETL] --> [Admin_pg] : Чтение\nfilms
-[Client] --> [Async Api] : Получение\nконтента
-[Async Api] --> [ElasticSearch] : Чтение\nfilms
+[Async Api] --> [Auth] : Authorization
+[ETL] --> [ElasticSearch] : Writes\nfilms
+[ETL] --> [Admin_pg] : Reads\nfilms
+[Client] --> [Async Api] : Fetches\ncontent
+[Async Api] --> [ElasticSearch] : Reads\nfilms
 [Async Api] --> [Async_cache] : Cache
 
-' --- Клиент и просмотр ---
-User --> [Client] : Пользуется\nсервисом
-Manager --> [Client] : Регистрация
-[Client] --> [Views Proxy] : Прогресс\nпросмотра
-[Views Proxy] --> [Kafka] : Пишет\nсообщения
-[Kafka] --> [Views ETL] : Передаёт\nсообщения
-[Views ETL] --> [Clickhouse] : Сохраняет\nпачками
-
-' --- Billing ---
-[Client] --> [Billing] : Оплата/статус
-[Billing] --> [Auth] : Авторизация
-[Billing] --> [billing_pg]
-[Billing] --> [Subscribe Service] : CRUD\nподписок
+' --- Client & Viewing ---
+User --> [Client] : Uses\nthe service
+Manager --> [Client] : Registers
+[Client] --> [Views Proxy] : Viewing\nprogress
+[Views Proxy] --> [Kafka] : Sends\nmessages
+[Kafka] --> [Views ETL] : Passes\nmessages
+[Views ETL] --> [Clickhouse] : Saves\nin batches
 
 ' --- Notifications & Email ---
-[Notification Generator] --> [Notification API] : Получение\nданных
-[Notification Generator] --> q_emails : Публикация\nemail задач
-[Email Sender] --> q_emails : Получение\nemail задач
-[Email Sender] --> q_status : Публикация\nстатуса
-[Billing] --> [Notification API] : Данные об оплате
-[Auth] --> [Notification API] : Данные об авторизации
-[Notification API] --> q_status : Получение\nстатуса
+[Notification Generator] --> [Notification API] : Gets\ndata
+[Notification Generator] --> [RabbitMQ] : Publishes\nemail tasks
+[Email Sender] --> [RabbitMQ] : Consumes\nemail tasks
+[Email Sender] --> [RabbitMQ] : Publishes\nstatus
+[Billing] --> [Notification API] : Payment data
+[Auth] --> [Notification API] : Auth data
+[Notification API] --> [RabbitMQ] : Consumes\nstatus
 [Notification API] --> [notification_pg]
 
-' --- Subscribe System ---
-[Subscribe Controller] --> [Subscribe Service] : Шедулинг\nзапросов
+' --- Subscription & Billing System ---
+[Client] --> [Subscribe Service] : Subscribes
+[Subscribe Controller] --> [Subscribe Service] : Schedules\nrequests
 [Subscribe Service] --> [subscribe_pg]
+[Client] --> [Billing] : Payment/status
+[Billing] --> [Auth] : Authorization
+[Billing] --> [billing_pg]
+[Billing] --> [Subscribe Service] : Subscription\nCRUD
 
 @enduml
